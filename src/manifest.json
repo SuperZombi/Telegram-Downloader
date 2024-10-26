@@ -1,0 +1,13 @@
+{
+   "manifest_version": 3,
+   "version": "0.0.0",
+   "name": "Telegram Downloader",
+   "description": "None",
+   "permissions": [ "storage", "scripting" ],
+   "host_permissions": ["https://web.telegram.org/*"],
+   "background": {
+      "service_worker": "background.js"
+   },
+   "homepage_url": "https://github.com/SuperZombi/",
+   "minimum_chrome_version": "107.0.5304.87"
+}

@@ -8,11 +8,18 @@
       "js": ["messenger.js"],
       "run_at": "document_end"
    }],
-   "permissions": [ "storage", "scripting" ],
-   "host_permissions": ["https://web.telegram.org/*"],
    "background": {
       "service_worker": "background.js"
    },
+   "options_ui": {
+      "open_in_tab": false,
+      "page": "menu/options.html"
+   },
+   "action": {
+      "default_popup": "menu/options.html"
+   },
+   "permissions": [ "storage", "scripting" ],
+   "host_permissions": ["https://web.telegram.org/*"],
    "homepage_url": "https://github.com/SuperZombi/",
    "minimum_chrome_version": "107.0.5304.87"
 }

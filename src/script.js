@@ -9,7 +9,7 @@ if (window.location.href.startsWith("https://web.telegram.org/a/")){
 			mediaButtons.prepend(button)
 		}
 
-		function download_action(button){
+		async function download_action(button){
 			let mediaContent = mediaContainer.querySelector(".MediaViewerSlide--active .MediaViewerContent")
 			let mediaElement = mediaContent.querySelector("video, img");
 			if(mediaElement instanceof HTMLImageElement) {
@@ -20,11 +20,18 @@ if (window.location.href.startsWith("https://web.telegram.org/a/")){
 				<svg viewBox="0 0 200 200" width="50" height="50" style="--progress: 0" class="circular-progress">
 				<circle class="bg"></circle><circle class="fg"></circle></svg></div>`
 				let progressEl = button.querySelector(".circular-progress")
+				let thumb = await getThumb(mediaElement)
+				
 				let abort = downloadVideo(mediaElement.src, on_progress(progressEl),
-				on_complete=>{
+				(file_id, filename)=>{
+					on_create(file_id, filename, thumb)
+				},
+				filename=>{
 					initialDownloadButton(button)
-				}, on_abort=>{
+					on_complete(filename)
+				}, filename=>{
 					initialDownloadButton(button)
+					on_abort(filename)
 				})
 				button.onclick = _=>{abort()}
 			}
@@ -35,10 +42,51 @@ if (window.location.href.startsWith("https://web.telegram.org/a/")){
 			button.onclick = _=>{download_action(button)}
 		}
 
+		function on_create(file_id, filename, thumbnail){
+			window.postMessage({ from: "TG_DOWNLOADER", message: {
+				"event": "new",
+				"id": file_id,
+				"filename": filename,
+				"thumbnail": thumbnail
+			} });
+		}
+
 		function on_progress(element){
-			return (percent)=>{
+			return (file_id, percent)=>{
 				element.style.setProperty("--progress", percent)
+				window.postMessage({ from: "TG_DOWNLOADER", message: {
+					"event": "progress",
+					"id": file_id,
+					"percent": percent
+				} });
 			}
+		}
+
+		function on_complete(file_id){
+			window.postMessage({ from: "TG_DOWNLOADER", message: {
+				"event": "complete",
+				"id": file_id
+			} });
+		}
+		function on_abort(file_id){
+			window.postMessage({ from: "TG_DOWNLOADER", message: {
+				"event": "abort",
+				"id": file_id
+			} });
+		}
+
+		function getThumb(videoEl){
+			return new Promise((resolve, reject) => {
+				let computedStyle = window.getComputedStyle(videoEl)
+				let imageUrl = computedStyle.backgroundImage.slice(4, -1).replace(/"/g, "")
+				fetch(imageUrl).then((res)=>{return res.blob()}).then((blob)=>{
+					const reader = new FileReader();
+					reader.onloadend = ()=>{
+						resolve(reader.result);
+					};
+					reader.readAsDataURL(blob);
+				});
+			});
 		}
 	})
 }
@@ -78,8 +126,8 @@ function onAppear(selector, callback){
 
 
 function randomFileName(extension='') {
-    let filename = Math.random().toString(36).substring(2);
-    return extension ? `${filename}.${extension}` : filename;
+	let filename = Math.random().toString(36).substring(2);
+	return extension ? `${filename}.${extension}` : filename;
 }
 
 function downloadImage(url){
@@ -92,15 +140,16 @@ function downloadImage(url){
 }
 
 
-function downloadVideo(url, progress="", onComplete="", onAbort=""){
+function downloadVideo(url, progress="", onCreate="", onComplete="", onAbort=""){
 	let _blobs = [];
 	let _next_offset = 0;
 	let _total_size = null;
 	let canDownload = true;
+	let fileId = Date.now();
 	let fileName = randomFileName("mp4");
 	let progressFunc = progress ? progress : default_progress_func;
 
-	function default_progress_func(percent){console.log(`${percent}%`)}
+	function default_progress_func(percent, file_id){console.log(`${percent}% - ${fileName}`)}
 
 	function fetchNextPart(_writable){
 		fetch(url, {
@@ -132,7 +181,7 @@ function downloadVideo(url, progress="", onComplete="", onAbort=""){
 			}
 			_next_offset = endOffset + 1;
 			_total_size = totalSize;
-			progressFunc(((_next_offset * 100) / _total_size).toFixed(0))
+			progressFunc(fileId, ((_next_offset * 100) / _total_size).toFixed(0))
 			return res.blob();
 		})
 		.then((resBlob) => {
@@ -150,22 +199,22 @@ function downloadVideo(url, progress="", onComplete="", onAbort=""){
 				if (canDownload){
 					fetchNextPart(_writable);
 				} else {
-					onAbort ? onAbort() : console.warn("Aborted", fileName)
+					onAbort ? onAbort(fileId) : console.warn("Aborted", fileName)
 				}
 			} else {
 				if (_writable) {
 					_writable.close().then(() => {
-						onComplete ? onComplete() : null;
+						onComplete ? onComplete(fileId) : null;
 					});
 				} else {
 					save();
-					onComplete ? onComplete() : null;
+					onComplete ? onComplete(fileId) : null;
 				}
 			}
 		})
 		.catch((reason) => {
 			console.error(reason);
-			onAbort ? onAbort() : null;
+			onAbort ? onAbort(fileId) : null;
 		});
 	};
 
@@ -190,8 +239,10 @@ function downloadVideo(url, progress="", onComplete="", onAbort=""){
 				accept: {'video/mp4': ['.mp4']}
 			}]
 		}).then((handle) => {
+			fileName = handle.name;
 			handle.createWritable()
 			.then((writable) => {
+				onCreate ? onCreate(fileId, fileName) : null
 				fetchNextPart(writable);
 			})
 		})
@@ -207,4 +258,3 @@ function downloadVideo(url, progress="", onComplete="", onAbort=""){
 		canDownload = false;
 	}
 }
-

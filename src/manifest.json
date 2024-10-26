@@ -3,6 +3,11 @@
    "version": "0.0.0",
    "name": "Telegram Downloader",
    "description": "None",
+   "content_scripts": [{
+      "matches": [ "https://web.telegram.org/*" ],
+      "js": ["messenger.js"],
+      "run_at": "document_end"
+   }],
    "permissions": [ "storage", "scripting" ],
    "host_permissions": ["https://web.telegram.org/*"],
    "background": {

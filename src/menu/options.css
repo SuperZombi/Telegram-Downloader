@@ -52,11 +52,15 @@ hr {
 	border-radius: 5px;
 	overflow: hidden;
 	height: 8px;
+	--percent: 0%;
 }
-#downloads .progress {
+#downloads .progress-bar:before {
+	content: '';
+	display: block;
 	background: #76c7c0;
 	height: 100%;
 	transition: width 0.4s ease;
+	width: var(--percent);
 }
 #downloads .cancel-button {
 	background: #ff4d4d;

@@ -31,6 +31,34 @@ function executeScript(tabId, version){
 	}
 }
 
+var downloads = [];
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse)=>{
-	console.log(msg)
+	if (msg.event == "new"){
+		let dwnl = new Download(msg.id, msg.filename, msg.thumbnail)
+		downloads.push(dwnl)
+	}
+	else if (msg.event == "progress"){
+		let dwnl = downloads.find(o => o.id === msg.id)
+		if (dwnl){
+			dwnl.progress(msg.percent)
+		}
+	}
+	else if (msg.event == "complete" || msg.event == "abort"){
+		downloads = downloads.filter(o => {return o.id !== msg.id})
+	}
+	else if (msg.event == "get"){
+		sendResponse(downloads)
+	}
 });
+
+class Download {
+	constructor(id, filename, thumbnail="") {
+		this.id = id;
+		this.filename = filename;
+		this.thumbnail = thumbnail;
+		this.percent = 0;
+	}
+	progress(new_percent){
+		this.percent = new_percent;
+	}
+};

@@ -1,3 +1,9 @@
+if (TG_DOWNLOADER_EXECUTED){}
+else{
+	var TG_DOWNLOADER_EXECUTED = true;
+
+
+var processingDownloads = [];
 onAppear("#MediaViewer", mediaContainer => {
 	let mediaButtons = mediaContainer.querySelector(".MediaViewerActions")
 	if (!mediaButtons.querySelector("button .icon-download")){
@@ -21,7 +27,7 @@ onAppear("#MediaViewer", mediaContainer => {
 			let progressEl = button.querySelector(".circular-progress")
 			let thumb = await getThumb(mediaElement)
 			
-			let abort = downloadVideo(mediaElement.src, {
+			const {id, abort} = downloadVideo(mediaElement.src, {
 				"progress": on_progress(progressEl),
 				"onCreate": (file_id, filename)=>{on_create(file_id, filename, thumb)},
 				"onComplete": file_id=>{
@@ -34,6 +40,7 @@ onAppear("#MediaViewer", mediaContainer => {
 				}
 			})
 			button.onclick = _=>{abort()}
+			processingDownloads.push({"id": id, "abort": abort})
 		}
 	}
 
@@ -67,12 +74,14 @@ onAppear("#MediaViewer", mediaContainer => {
 			"event": "complete",
 			"id": file_id
 		} });
+		removeDownloadFromArray(file_id)
 	}
 	function on_abort(file_id){
 		window.postMessage({ from: "TG_DOWNLOADER", message: {
 			"event": "abort",
 			"id": file_id
 		} });
+		removeDownloadFromArray(file_id)
 	}
 
 	function getThumb(videoEl){
@@ -89,3 +98,19 @@ onAppear("#MediaViewer", mediaContainer => {
 		});
 	}
 })
+function removeDownloadFromArray(dwnlId){
+	processingDownloads = processingDownloads.filter(o => {return o.id != dwnlId})
+}
+
+window.addEventListener("message", (event) => {
+	if (event.data.from === "TG_DOWNLOADER_POPUP") {
+		let message = event.data.message;
+		let dwnl = processingDownloads.find(o => o.id == message.id)
+		if (dwnl){
+			dwnl.abort()
+		}
+	}
+});
+
+
+}

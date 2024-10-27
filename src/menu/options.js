@@ -15,18 +15,14 @@ chrome.runtime.sendMessage({ from: 'popup', event: 'get' }, data=>{
 		data.forEach(e=>{
 			createDownload(e.id, e.filename, e.thumbnail, e.percent)
 		})
-		ListenEvents()
 	}
+	ListenEvents()
 });
 
 function ListenEvents(){
 	chrome.runtime.onMessage.addListener((msg, sender, res) => {
 		if (msg.event == "new"){
-			let el = createDownload(msg.id, msg.filename, msg.thumbnail)
-			let cancel = el.querySelector(".cancel-button");
-			cancel.onclick = _=>{
-				// TODO
-			}
+			createDownload(msg.id, msg.filename, msg.thumbnail)
 		}
 		else if (msg.event == "progress"){
 			let el = document.querySelector(`#downloads .download-container[file-id="${msg.id}"]`)
@@ -51,7 +47,11 @@ function createDownload(file_id, filename, thumbnail="", percent=0){
 			<button class="cancel-button">✖</button>
 		</div>
 	`
-	let container = div.querySelector(".download-container")
-	document.querySelector("#downloads").appendChild(container)
-	return container
+	let download = div.querySelector(".download-container")
+	document.querySelector("#downloads").appendChild(download)
+	let cancel = download.querySelector(".cancel-button")
+	cancel.onclick = _=>{
+		chrome.runtime.sendMessage({from: 'popup', event: 'abort', id: download.getAttribute('file-id')});
+	}
+	return download
 }

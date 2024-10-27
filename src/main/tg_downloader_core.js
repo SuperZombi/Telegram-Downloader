@@ -35,7 +35,7 @@ function downloadVideo(url, {progress, onCreate, onComplete, onAbort}={}){
 	let _next_offset = 0;
 	let _total_size = null;
 	let canDownload = true;
-	let fileId = Date.now();
+	const fileId = Date.now();
 	let fileName = randomFileName("mp4");
 	let progressFunc = progress ? progress : default_progress_func;
 
@@ -145,7 +145,8 @@ function downloadVideo(url, {progress, onCreate, onComplete, onAbort}={}){
 	} else {
 		fetchNextPart(null);
 	}
-	return ()=>{
-		canDownload = false;
+	return {
+		id: fileId,
+		abort: ()=>{canDownload = false}
 	}
 }

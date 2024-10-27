@@ -5,3 +5,8 @@ window.addEventListener("message", (event) => {
 		chrome.runtime.sendMessage(event.data.message);
 	}
 });
+chrome.runtime.onMessage.addListener((msg, sender, res) => {
+	if (msg.from == "background"){
+		window.postMessage({from: "TG_DOWNLOADER_POPUP", message: msg.message});
+	}
+});

@@ -1,3 +1,8 @@
+if (TG_DOWNLOADER_EXECUTED){}
+else{
+	var TG_DOWNLOADER_EXECUTED = true;
+
+
 var DOWNLOAD_ICON = "\uE94E";
 onAppear(".media-viewer-aspecter", aspecter => {
 	let mediaContainer = aspecter.closest(".media-viewer-whole")
@@ -10,3 +15,6 @@ onAppear(".media-viewer-aspecter", aspecter => {
 		}
 	}
 })
+
+
+}

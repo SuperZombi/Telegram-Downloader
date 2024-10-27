@@ -33,27 +33,38 @@ function executeScript(tabId, version){
 
 var downloads = [];
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse)=>{
+	if (msg.from == 'popup'){
+		if (msg.event == "abort"){
+			let dwnl = downloads.find(o => o.id == msg.id)
+			if (dwnl){
+				chrome.tabs.sendMessage(dwnl.tab, {from: 'background', message: {event: 'abort', id: msg.id}})
+			}
+		}
+		else if (msg.event == "get"){
+			sendResponse(downloads)
+		}
+		return
+	}
+
 	if (msg.event == "new"){
-		let dwnl = new Download(msg.id, msg.filename, msg.thumbnail)
+		let dwnl = new Download(msg.id, sender.tab.id, msg.filename, msg.thumbnail)
 		downloads.push(dwnl)
 	}
 	else if (msg.event == "progress"){
-		let dwnl = downloads.find(o => o.id === msg.id)
+		let dwnl = downloads.find(o => o.id == msg.id)
 		if (dwnl){
 			dwnl.progress(msg.percent)
 		}
 	}
 	else if (msg.event == "complete" || msg.event == "abort"){
-		downloads = downloads.filter(o => {return o.id !== msg.id})
-	}
-	else if (msg.event == "get"){
-		sendResponse(downloads)
+		downloads = downloads.filter(o => {return o.id != msg.id})
 	}
 });
 
 class Download {
-	constructor(id, filename, thumbnail="") {
-		this.id = id;
+	constructor(file_id, tab_id, filename, thumbnail="") {
+		this.id = file_id;
+		this.tab = tab_id;
 		this.filename = filename;
 		this.thumbnail = thumbnail;
 		this.percent = 0;

@@ -1,6 +1,7 @@
 # Telegram Downloader
 <img src="github/images/icon.png" height="85" align="right">
-<img src="https://shields.io/badge/version-1.0.0-blue">
+<img src="https://shields.io/badge/version-1.0.0-blue" align="left">
+<a href="#donate"><img src="https://shields.io/badge/💲-Support_the_Project-2ea043"></a>
 
 ### Downloads photos and videos from Telegram Web private channels
 
@@ -28,3 +29,33 @@
 * Adds a download manager (call the extension popup)
 
 </details>
+
+
+<br/>
+<img src="github/images/preview.gif">
+
+#### Downloads Manager
+<img src="github/images/downloads-manager.gif">
+
+<hr>
+
+#### 💲Donate
+
+<table>
+  <tr>
+    <td>
+       <img width="18px" src="https://www.google.com/s2/favicons?domain=https://donatello.to&sz=256">
+    </td>
+    <td>
+      <a href="https://donatello.to/super_zombi">Donatello</a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+       <img width="18px" src="https://www.google.com/s2/favicons?domain=https://www.donationalerts.com&sz=256">
+    </td>
+    <td>
+      <a href="https://www.donationalerts.com/r/super_zombi">Donation Alerts</a>
+    </td>
+  </tr>
+</table>

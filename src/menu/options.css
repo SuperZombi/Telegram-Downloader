@@ -13,7 +13,27 @@ hr {
 	justify-content: space-between;
 	align-items: center;
 }
+#header .header-item{
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+#href_text{
+	cursor: alias;
+	text-decoration: none;
+}
 
+#empty{
+	display: none;
+	fill: #25c9ff;
+	height: 100px;
+	margin: auto;
+	margin-top: 10px;
+	animation: ghost 5s ease-in-out infinite;
+}
+#downloads:empty + #empty{
+	display: block;
+}
 #downloads {
 	display: flex;
 	flex-direction: column;
@@ -29,6 +49,8 @@ hr {
 	height: 60px;
 	gap: 10px;
 	overflow: hidden;
+	transition: 0.25s;
+	position: relative;
 }
 #downloads .preview-image {
 	height: 100%;
@@ -36,6 +58,10 @@ hr {
 	aspect-ratio: 4 / 3;
 	background: lightgrey;
 	text-indent: 100%;
+	object-fit: cover;
+}
+#downloads .preview-image[src=""] {
+	background: url('images/no-image.svg') no-repeat center;
 }
 #downloads .download-info {
 	flex-grow: 1;
@@ -80,6 +106,50 @@ hr {
 	transform: scale(0.95);
 }
 
+#downloads .download-container.finished {
+	outline: 2px solid rgb(0, 255, 0, 0.5);
+	order: 1;
+}
+#downloads .download-container.finished .progress-bar,
+#downloads .download-container.finished .cancel-button
+{
+	display: none;
+}
+#downloads .download-container.inactive {
+	outline: 2px solid rgb(255, 0, 0, 0.5);
+	opacity: 0.75;
+	order: 2;
+}
+#downloads .download-container.inactive .preview-image{
+	filter: grayscale(1);
+}
+
+
+#downloads .description-icon {
+	height: 20px;
+	width: 20px;
+	background: url('images/warn.svg') no-repeat center;
+	display: none;
+}
+#downloads .download-container.inactive .description-icon{
+	display: block;
+}
+
+#downloads .description-text {
+	position: absolute;
+	inset: 0;
+	background: inherit;
+	padding: 10px;
+	transform: translateX(100%);
+	transition: 0.5s;
+	font-family: monospace;
+	font-size: 12px;
+}
+#downloads .description-icon:hover + .description-text:not(:empty),
+#downloads .description-text:hover {
+	transform: translateX(0);
+}
+
 
 .dark{
 	background-color: #181818;
@@ -88,9 +158,22 @@ hr {
 .dark #downloads .download-container {
 	background: #252525;
 }
-.dark #downloads .preview-image {
-	background: grey;
-}
 .dark #downloads .progress-bar {
 	background: #676767;
+}
+.dark #href_text svg{
+	fill: white;
+}
+
+
+@keyframes ghost{
+	0%{
+		transform: translateX(-100%);
+	}
+	50%{
+		transform: translateX(100%);
+	}
+	100%{
+		transform: translateX(-100%);
+	}
 }

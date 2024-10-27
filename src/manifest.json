@@ -1,8 +1,11 @@
 {
    "manifest_version": 3,
-   "version": "0.0.0",
+   "version": "1.0.0",
    "name": "Telegram Downloader",
-   "description": "None",
+   "description": "Downloads photos and videos from Telegram Web",
+   "icons": {
+      "128": "telegram_logo.png"
+   },
    "content_scripts": [{
       "matches": [ "https://web.telegram.org/*" ],
       "js": ["messenger.js"],
@@ -18,8 +21,8 @@
    "action": {
       "default_popup": "menu/options.html"
    },
-   "permissions": [ "storage", "scripting" ],
+   "permissions": [ "scripting" ],
    "host_permissions": ["https://web.telegram.org/*"],
-   "homepage_url": "https://github.com/SuperZombi/",
+   "homepage_url": "https://github.com/SuperZombi/telegram-downloader",
    "minimum_chrome_version": "107.0.5304.87"
 }

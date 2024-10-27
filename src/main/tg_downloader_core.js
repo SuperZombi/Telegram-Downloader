@@ -38,6 +38,7 @@ function downloadVideo(url, {progress, onCreate, onComplete, onAbort}={}){
 	const fileId = Date.now();
 	let fileName = randomFileName("mp4");
 	let progressFunc = progress ? progress : default_progress_func;
+	const abortByUser = "Aborted by user"
 
 	function default_progress_func(percent, file_id){console.log(`${percent}% - ${fileName}`)}
 
@@ -89,7 +90,7 @@ function downloadVideo(url, {progress, onCreate, onComplete, onAbort}={}){
 				if (canDownload){
 					fetchNextPart(_writable);
 				} else {
-					onAbort ? onAbort(fileId) : console.warn("Aborted", fileName)
+					onAbort ? onAbort(fileId, abortByUser) : console.warn("Aborted", fileName)
 				}
 			} else {
 				if (_writable) {
@@ -103,8 +104,7 @@ function downloadVideo(url, {progress, onCreate, onComplete, onAbort}={}){
 			}
 		})
 		.catch((reason) => {
-			console.error(reason);
-			onAbort ? onAbort(fileId) : null;
+			onAbort ? onAbort(fileId, reason.message) : console.error(reason);
 		});
 	};
 
@@ -143,6 +143,7 @@ function downloadVideo(url, {progress, onCreate, onComplete, onAbort}={}){
 			onAbort ? onAbort(fileId) : null;
 		});
 	} else {
+		onCreate ? onCreate(fileId, fileName) : null
 		fetchNextPart(null);
 	}
 	return {

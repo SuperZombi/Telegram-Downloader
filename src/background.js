@@ -57,8 +57,18 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse)=>{
 		}
 	}
 	else if (msg.event == "complete" || msg.event == "abort"){
-		downloads = downloads.filter(o => {return o.id != msg.id})
+		let dwnl = downloads.find(o => o.id == msg.id)
+		if (dwnl){
+			if (msg.event == "complete"){dwnl.status = "completed"}
+			else if (msg.event == "abort"){
+				dwnl.status = "aborted"
+				dwnl.error_text = msg.reason
+			}
+		}
 	}
+	// else if (msg.event == "complete" || msg.event == "abort"){
+	// 	downloads = downloads.filter(o => {return o.id != msg.id})
+	// }
 });
 
 class Download {
@@ -68,6 +78,8 @@ class Download {
 		this.filename = filename;
 		this.thumbnail = thumbnail;
 		this.percent = 0;
+		this.status = "work";
+		this.error_text = "";
 	}
 	progress(new_percent){
 		this.percent = new_percent;

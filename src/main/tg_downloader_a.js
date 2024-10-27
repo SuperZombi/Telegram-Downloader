@@ -34,9 +34,9 @@ onAppear("#MediaViewer", mediaContainer => {
 					initialDownloadButton(button)
 					on_complete(file_id)
 				},
-				"onAbort": file_id=>{
+				"onAbort": (file_id, reason)=>{
 					initialDownloadButton(button)
-					on_abort(file_id)
+					on_abort(file_id, reason)
 				}
 			})
 			button.onclick = _=>{abort()}
@@ -76,28 +76,31 @@ onAppear("#MediaViewer", mediaContainer => {
 		} });
 		removeDownloadFromArray(file_id)
 	}
-	function on_abort(file_id){
+	function on_abort(file_id, reason=""){
 		window.postMessage({ from: "TG_DOWNLOADER", message: {
 			"event": "abort",
-			"id": file_id
+			"id": file_id,
+			"reason": reason
 		} });
 		removeDownloadFromArray(file_id)
 	}
-
-	function getThumb(videoEl){
-		return new Promise((resolve, reject) => {
-			let computedStyle = window.getComputedStyle(videoEl)
-			let imageUrl = computedStyle.backgroundImage.slice(4, -1).replace(/"/g, "")
-			fetch(imageUrl).then((res)=>{return res.blob()}).then((blob)=>{
-				const reader = new FileReader();
-				reader.onloadend = ()=>{
-					resolve(reader.result);
-				};
-				reader.readAsDataURL(blob);
-			});
-		});
-	}
 })
+
+function getThumb(videoEl){
+	return new Promise(resolve=>{
+		let computedStyle = window.getComputedStyle(videoEl)
+		let imageUrl = computedStyle.backgroundImage.slice(4, -1).replace(/"/g, "")
+		if (!imageUrl.startsWith("blob")){return resolve("")}
+		fetch(imageUrl).then(res=>{return res.blob()}).then(blob=>{
+			const reader = new FileReader();
+			reader.onloadend = ()=>{
+				resolve(reader.result);
+			};
+			reader.readAsDataURL(blob);
+		}).catch(_=>{resolve("")})
+	});
+}
+
 function removeDownloadFromArray(dwnlId){
 	processingDownloads = processingDownloads.filter(o => {return o.id != dwnlId})
 }

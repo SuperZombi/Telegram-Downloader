@@ -1,6 +1,6 @@
 # Telegram Downloader
 <img src="github/images/icon.png" height="85" align="right">
-<img src="https://shields.io/badge/version-1.0.0-blue" align="left">
+<img src="https://shields.io/badge/version-1.0.1-blue" align="left">
 <a href="#donate"><img src="https://shields.io/badge/💲-Support_the_Project-2ea043"></a>
 
 ### Downloads photos and videos from Telegram Web private channels

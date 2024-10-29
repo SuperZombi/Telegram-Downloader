@@ -27,6 +27,7 @@ function ListenEvents(){
 		else if (msg.event == "progress"){
 			let el = document.querySelector(`#downloads .download-container[file-id="${msg.id}"]`)
 			if (el) {
+				el.querySelector(".percent").innerHTML = msg.percent
 				el.querySelector(".progress-bar").style.setProperty("--percent", `${msg.percent}%`)
 			}
 		}
@@ -51,7 +52,7 @@ function createDownload(file_id, filename, thumbnail="", percent=0, status="work
 		<div class="download-container" file-id="${file_id}">
 			<img src="${thumbnail}" class="preview-image">
 			<div class="download-info">
-				<span class="file-name">${filename}</span>
+				<span class="file-name">${filename}<span class="percent">${percent ? percent : ""}</span></span>
 				<div class="progress-bar" style="--percent:${percent}%"></div>
 			</div>
 			<button class="cancel-button">✖</button>

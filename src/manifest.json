@@ -1,10 +1,10 @@
 {
    "manifest_version": 3,
-   "version": "1.0.0",
+   "version": "1.0.1",
    "name": "Telegram Downloader",
    "description": "Downloads photos and videos from Telegram Web",
    "icons": {
-      "128": "telegram_logo.png"
+      "128": "telegram_128.png"
    },
    "content_scripts": [{
       "matches": [ "https://web.telegram.org/*" ],

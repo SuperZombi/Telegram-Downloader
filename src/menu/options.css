@@ -59,6 +59,7 @@ hr {
 	background: lightgrey;
 	text-indent: 100%;
 	object-fit: cover;
+	user-select: none;
 }
 #downloads .preview-image[src=""] {
 	background: url('images/no-image.svg') no-repeat center;
@@ -72,6 +73,16 @@ hr {
 #downloads .file-name {
 	font-size: 16px;
 	font-weight: bold;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+#downloads .percent {
+	color: #76c7c0;
+	user-select: none;
+}
+#downloads .percent::after {
+	content: "%";
 }
 #downloads .progress-bar {
 	background: #e0e0e0;
@@ -111,7 +122,8 @@ hr {
 	order: 1;
 }
 #downloads .download-container.finished .progress-bar,
-#downloads .download-container.finished .cancel-button
+#downloads .download-container.finished .cancel-button,
+#downloads .download-container.finished .percent
 {
 	display: none;
 }
@@ -136,6 +148,7 @@ hr {
 }
 
 #downloads .description-text {
+	visibility: hidden;
 	position: absolute;
 	inset: 0;
 	background: inherit;
@@ -147,6 +160,7 @@ hr {
 }
 #downloads .description-icon:hover + .description-text:not(:empty),
 #downloads .description-text:hover {
+	visibility: visible;
 	transform: translateX(0);
 }
 

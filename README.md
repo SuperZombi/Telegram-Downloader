@@ -7,6 +7,8 @@
 
 ## Installation:
 
+### [Chrome Web Store](https://chrome.google.com/webstore/detail/telegram-downloader/koiaccdjppbbbjhieeccphdmbiokadbd)
+
 ### Chrome:
   1. Download latest **[Release](https://github.com/SuperZombi/telegram-downloader/releases)**.
   2. Extract the archive to an installation location.

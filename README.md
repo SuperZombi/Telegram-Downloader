@@ -8,7 +8,6 @@
 ## Installation:
 
 ### <img width="18px" src="https://www.svgrepo.com/show/452180/chrome.svg"> [Chrome Web Store](https://chrome.google.com/webstore/detail/telegram-downloader/koiaccdjppbbbjhieeccphdmbiokadbd)
-### <img width="18px" src="https://www.svgrepo.com/show/452204/firefox.svg"><img src="https://img.shields.io/badge/pending-gray"> Firefox Extension Workshop 
 
 ### Chrome:
   1. Download latest **[Release](https://github.com/SuperZombi/telegram-downloader/releases)**.

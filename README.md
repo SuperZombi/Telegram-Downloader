@@ -1,5 +1,6 @@
+<img src="github/images/icon.png" width="150" align="right">
+
 # Telegram Downloader
-<img src="github/images/icon.png" width="85" align="right">
 <img src="https://shields.io/badge/version-1.0.2-blue" align="left">
 <a href="#donate"><img src="https://shields.io/badge/💲-Support_the_Project-2ea043"></a>
 

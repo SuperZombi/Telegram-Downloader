@@ -72,7 +72,7 @@ function _tgDlDispatchClick(el) {
 function makeBanner(getUrl, getFilename) {
 	const btn = document.createElement('button');
 	btn.className = 'tg-dl-banner';
-	btn.textContent = '\u2b07 \u0421\u043a\u0430\u0447\u0430\u0442\u044c'; // ⬇ Скачать
+	btn.textContent = '\u2b07 Download'; // ⬇ Download
 	btn.type = 'button';
 	btn.onclick = async (e) => {
 		e.stopPropagation();
@@ -86,7 +86,7 @@ function makeBanner(getUrl, getFilename) {
 		const audioEl = msg?.querySelector('.Audio');
 		if (!audioEl) return;
 
-		btn.textContent = '\u25b6 \u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...'; // ▶ Загрузка...
+		btn.textContent = '\u25b6 Loading...'; // ▶ Loading...
 		btn.classList.add('tg-dl-wait');
 
 		// Set pendingMsg before triggering so src interceptor associates the URL with this message
@@ -106,7 +106,7 @@ function makeBanner(getUrl, getFilename) {
 			if (url) break;
 		}
 
-		btn.textContent = '\u2b07 \u0421\u043a\u0430\u0447\u0430\u0442\u044c'; // ⬇ Скачать
+		btn.textContent = '\u2b07 Download'; // ⬇ Download
 		btn.classList.remove('tg-dl-wait');
 
 		if (url) {

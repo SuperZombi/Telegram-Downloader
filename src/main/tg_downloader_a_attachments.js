@@ -57,6 +57,52 @@ function _tgDlSaveUrl(url, filename) {
 	document.body.removeChild(a);
 }
 
+// Fetches audio in chunks via Range requests (Telegram SW serves ~512KB per request).
+// Calls onProgress(percent) after each chunk. Returns { blob, ext }.
+async function _tgDlFetchAudio(url, onProgress) {
+	const blobs = [];
+	let offset = 0;
+	let total = null;
+	let mimeType = 'audio/ogg';
+	while (total === null || offset < total) {
+		const res = await fetch(url, { headers: { Range: `bytes=${offset}-` } });
+		if (![200, 206].includes(res.status)) throw new Error('HTTP ' + res.status);
+		const ct = res.headers.get('content-type');
+		if (ct) mimeType = ct.split(';')[0].trim();
+		const cr = res.headers.get('content-range');
+		if (cr) {
+			const m = cr.match(/bytes (\d+)-(\d+)\/(\d+)/);
+			if (m) { offset = parseInt(m[2]) + 1; total = parseInt(m[3]); }
+		} else {
+			blobs.push(await res.blob());
+			break; // single full response, no chunking needed
+		}
+		blobs.push(await res.blob());
+		if (onProgress && total) onProgress(Math.round(offset * 100 / total));
+	}
+	const ext = /mpeg|mp3/.test(mimeType) ? 'mp3' : /mp4|aac|m4a/.test(mimeType) ? 'm4a' : 'ogg';
+	return { blob: new Blob(blobs, { type: mimeType }), ext };
+}
+
+// Downloads audio via chunked Range fetching and reports to the extension download manager.
+async function _tgDlDownloadAudio(url, filename) {
+	const fileId = Date.now();
+	window.postMessage({ from: "TG_DOWNLOADER", message: { event: "new", id: fileId, filename: filename, thumbnail: "" } });
+	try {
+		const { blob, ext } = await _tgDlFetchAudio(url, (percent) => {
+			window.postMessage({ from: "TG_DOWNLOADER", message: { event: "progress", id: fileId, percent } });
+		});
+		const fname = filename.replace(/\.[^.]+$/, '.' + ext);
+		const blobUrl = URL.createObjectURL(blob);
+		_tgDlSaveUrl(blobUrl, fname);
+		setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+	} catch (e) {
+		console.error('[TG-DL] audio fetch error:', e.message);
+		_tgDlSaveUrl(url, filename);
+	}
+	window.postMessage({ from: "TG_DOWNLOADER", message: { event: "complete", id: fileId } });
+}
+
 // Dispatch a full pointer→mouse→click sequence on el.
 // Needed because Telegram's audio player listens to pointer events, not just click.
 function _tgDlDispatchClick(el) {
@@ -69,17 +115,18 @@ function _tgDlDispatchClick(el) {
 	el.click();
 }
 
-function makeBanner(getUrl, getFilename) {
+function makeBanner(getUrl, getFilename, isAudio = false) {
 	const btn = document.createElement('button');
 	btn.className = 'tg-dl-banner';
 	btn.textContent = '\u2b07 Download'; // ⬇ Download
 	btn.type = 'button';
+	const _save = (url, filename) => isAudio ? _tgDlDownloadAudio(url, filename) : _tgDlSaveUrl(url, filename);
 	btn.onclick = async (e) => {
 		e.stopPropagation();
 		e.preventDefault();
 		let url = getUrl();
 		if (url) {
-			_tgDlSaveUrl(url, getFilename());
+			await _save(url, getFilename());
 			return;
 		}
 		const msg = btn.closest('.Message');
@@ -110,13 +157,12 @@ function makeBanner(getUrl, getFilename) {
 		btn.classList.remove('tg-dl-wait');
 
 		if (url) {
-			// Give audio ~1 second to play before pausing
-			await new Promise(r => setTimeout(r, 1000));
-			// Pause using the captured audio element reference (works on detached elements)
+			// Await download before pausing: for blob: URLs this reads data into an owned blob
+			// so pausing (which may revoke Telegram's blob URL) happens after data is captured.
+			await _save(url, getFilename());
 			if (_tgDlLastAudio && !_tgDlLastAudio.paused) {
 				_tgDlLastAudio.pause();
 			}
-			_tgDlSaveUrl(url, getFilename());
 		}
 	};
 	return btn;
@@ -124,13 +170,13 @@ function makeBanner(getUrl, getFilename) {
 
 // Injects banner into .message-content of the parent .Message container.
 // Real DOM (confirmed): div.Message > div.message-content-wrapper > div.message-content > div.content-inner > div.Audio
-function injectMessageBanner(mediaEl, getUrl, getFilename) {
+function injectMessageBanner(mediaEl, getUrl, getFilename, isAudio = false) {
 	const msg = mediaEl.closest('.Message');
 	if (!msg) return;
 	if (msg.querySelector('.tg-dl-banner')) return;
 	const content = msg.querySelector('.message-content');
 	if (!content) return;
-	content.appendChild(makeBanner(getUrl, getFilename));
+	content.appendChild(makeBanner(getUrl, getFilename, isAudio));
 }
 
 function scan() {
@@ -139,7 +185,8 @@ function scan() {
 		if (!msg) return;
 		injectMessageBanner(el,
 			() => _tgDlAudioMap.get(msg) || null,
-			() => randomFileName('mp3')
+			() => randomFileName('mp3'),
+			true
 		);
 	});
 

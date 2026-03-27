@@ -157,11 +157,11 @@ function makeBanner(getUrl, getFilename, isAudio = false) {
 		btn.classList.remove('tg-dl-wait');
 
 		if (url) {
-			// Await download before pausing: for blob: URLs this reads data into an owned blob
-			// so pausing (which may revoke Telegram's blob URL) happens after data is captured.
+			// Capture audio reference now — _tgDlLastAudio may be overwritten during async download.
+			const audioToStop = _tgDlLastAudio;
 			await _save(url, getFilename());
-			if (_tgDlLastAudio && !_tgDlLastAudio.paused) {
-				_tgDlLastAudio.pause();
+			if (audioToStop && !audioToStop.paused) {
+				audioToStop.pause();
 			}
 		}
 	};

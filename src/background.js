@@ -17,23 +17,10 @@ function executeScript(tabId, version){
 			files : [ "main/tg_downloader_core.js", "main/tg_downloader_a.js" ],
 			world: "MAIN"
 		}, () => {
-			if (chrome.runtime.lastError) {
-				console.error("[TG-DL] core/a inject error:", chrome.runtime.lastError.message);
-				return;
-			}
-			chrome.scripting.executeScript({
+			chrome.scripting.insertCSS({
 				target: { tabId: tabId },
-				files : [ "main/tg_downloader_a_attachments.js" ],
-				world: "MAIN"
-			}, () => {
-				if (chrome.runtime.lastError) {
-					console.error("[TG-DL] attachments inject error:", chrome.runtime.lastError.message);
-				}
-				chrome.scripting.insertCSS({
-					target: { tabId: tabId },
-					files: ["main/styles_a.css"]
-				});
-			});
+				files: ["main/styles_a.css"]
+			})
 		});
 	} else if (version == "k"){
 		chrome.scripting.executeScript({
@@ -43,7 +30,6 @@ function executeScript(tabId, version){
 		});
 	}
 }
-
 
 var downloads = [];
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse)=>{

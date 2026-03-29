@@ -1,31 +1,3 @@
-// Scans existing elements AND watches for future additions matching selector.
-function watchSelector(selector, callback) {
-	document.querySelectorAll(selector).forEach(callback);
-	new MutationObserver(function(mutationsList) {
-		for (let mutation of mutationsList) {
-			for (let node of mutation.addedNodes) {
-				if (!(node instanceof Element)) continue;
-				if (node.matches(selector)) callback(node);
-				node.querySelectorAll(selector).forEach(callback);
-			}
-		}
-	}).observe(document.body, { childList: true, subtree: true });
-}
-
-// Like onAppear, but also scans descendants of added nodes (needed for batch-loaded messages)
-function onAppearAll(selector, callback) {
-	let observer = new MutationObserver(function(mutationsList) {
-		for (let mutation of mutationsList) {
-			for (let node of mutation.addedNodes) {
-				if (!(node instanceof Element)) continue;
-				if (node.matches(selector)) callback(node);
-				node.querySelectorAll(selector).forEach(callback);
-			}
-		}
-	});
-	observer.observe(document.body, { childList: true, subtree: true });
-}
-
 function onAppear(selector, callback){
 	let observer = new MutationObserver(function(mutationsList) {
 		for (let mutation of mutationsList) {
@@ -46,23 +18,6 @@ function onAppear(selector, callback){
 function randomFileName(extension='') {
 	let filename = Math.random().toString(36).substring(2);
 	return extension ? `${filename}.${extension}` : filename;
-}
-
-// Generic file download: fetch URL → save as file
-function downloadFile(url, filename) {
-	fetch(url)
-		.then(res => res.blob())
-		.then(blob => {
-			const blobUrl = URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = blobUrl;
-			a.download = filename;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-			URL.revokeObjectURL(blobUrl);
-		})
-		.catch(err => console.error('[TG-DL] downloadFile error:', err));
 }
 
 function downloadImage(url){

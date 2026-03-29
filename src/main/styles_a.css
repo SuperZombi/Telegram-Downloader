@@ -33,3 +33,28 @@
 		rotate: 360deg;
 	}
 }
+
+/* Orange download banner injected below message bubble content */
+.tg-dl-banner {
+	display: block;
+	width: 100%;
+	margin-top: 6px;
+	padding: 8px 0;
+	background: #f57c00;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	text-align: center;
+	letter-spacing: 0.3px;
+	transition: background 0.15s;
+}
+.tg-dl-banner:hover {
+	background: #e65100;
+}
+.tg-dl-banner.tg-dl-wait {
+	background: #888;
+	cursor: default;
+}

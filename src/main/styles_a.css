@@ -54,7 +54,17 @@
 .tg-dl-banner:hover {
 	background: #e65100;
 }
-.tg-dl-banner.tg-dl-wait {
+.tg-dl-banner.tg-dl-resolving {
 	background: #888;
 	cursor: default;
+}
+.tg-dl-banner.tg-dl-progress {
+	background: linear-gradient(to right, #e65100 var(--tg-dl-progress), #888 var(--tg-dl-progress));
+}
+.tg-dl-banner.tg-dl-done {
+	background: #2e7d32;
+}
+.tg-dl-banner.tg-dl-error,
+.tg-dl-banner.tg-dl-mismatch {
+	background: #c62828;
 }
